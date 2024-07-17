@@ -20,8 +20,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Install
         run: npm install
-      - name: Install playwright
-        run: npx playwright install --with-deps
       - name: Build
         run: npm run build
       - name: Run tests
@@ -39,8 +37,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Install
         run: npm install
-      - name: Install playwright
-        run: npx playwright install --with-deps
       - name: Build
         run: npm run build
       - name: Run tests

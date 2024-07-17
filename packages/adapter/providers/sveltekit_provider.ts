@@ -1,10 +1,16 @@
 import { HttpContext } from '@adonisjs/core/http'
 import type { ApplicationService } from '@adonisjs/core/types'
 
+declare module '@adonisjs/core/http' {
+  interface HttpContext {
+    svelteHandler: () => Promise<void>
+  }
+}
+
 export default class SvelteKitProvider {
   static needsApplication = true
 
-  constructor(protected app: ApplicationService) { }
+  constructor(protected app: ApplicationService) {}
 
   async boot() {
     const env = this.app.getEnvironment()
