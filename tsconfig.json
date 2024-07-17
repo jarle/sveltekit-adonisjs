@@ -1,0 +1,7 @@
+{
+  "extends": "@adonisjs/tsconfig/tsconfig.package.json",
+  "compilerOptions": {
+    "incremental": true,
+    "composite": true,
+  }
+}

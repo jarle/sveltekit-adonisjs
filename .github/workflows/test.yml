@@ -1,0 +1,47 @@
+name: test
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+  push:
+  schedule:
+    - cron: '0 16 * * *'
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ["lts/iron", "latest"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install
+        run: npm install
+      - name: Install playwright
+        run: npx playwright install --with-deps
+      - name: Build
+        run: npm run build
+      - name: Run tests
+        run: npm test
+  windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        node-version: ["lts/iron", "latest"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install
+        run: npm install
+      - name: Install playwright
+        run: npx playwright install --with-deps
+      - name: Build
+        run: npm run build
+      - name: Run tests
+        run: npm test
