@@ -4,25 +4,47 @@
     "rootDir": "./",
     "outDir": "./build",
     "moduleResolution": "bundler",
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "module": "ESNext",
     "skipLibCheck": true,
     "paths": {
-      "#controllers/*": ["./app/controllers/*.js"],
-      "#exceptions/*": ["./app/exceptions/*.js"],
-      "#models/*": ["./app/models/*.js"],
-      "#services/*": ["./app/services/*.js"],
-      "#listeners/*": ["./app/listeners/*.js"],
-      "#events/*": ["./app/events/*.js"],
-      "#middleware/*": ["./app/middleware/*.js"],
-      "#validators/*": ["./app/validators/*.js"],
-      "#start/*": ["./start/*.js"],
-      "#config/*": ["./config/*.js"]
+      "#controllers/*": [
+        "./app/controllers/*.js"
+      ],
+      "#exceptions/*": [
+        "./app/exceptions/*.js"
+      ],
+      "#models/*": [
+        "./app/models/*.js"
+      ],
+      "#services/*": [
+        "./app/services/*.js"
+      ],
+      "#listeners/*": [
+        "./app/listeners/*.js"
+      ],
+      "#events/*": [
+        "./app/events/*.js"
+      ],
+      "#middleware/*": [
+        "./app/middleware/*.js"
+      ],
+      "#validators/*": [
+        "./app/validators/*.js"
+      ],
+      "#start/*": [
+        "./start/*.js"
+      ],
+      "#config/*": [
+        "./config/*.js"
+      ]
     }
   },
-  "references": [
-    {
-      "path": "../adapter"
-    }
+  "exclude": [
+    "./resources/svelte_app"
   ]
 }
