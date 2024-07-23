@@ -1,2 +1,2 @@
-import type { App } from '@matstack/adapter-node'
+import type { App } from '@matstack/kit-adapter-node'
 export type { App }

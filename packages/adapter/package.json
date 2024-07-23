@@ -81,7 +81,7 @@
   },
   "peerDependencies": {
     "@adonisjs/core": "^6.7.0",
-    "@matstack/adapter-node": "workspace:^"
+    "@matstack/kit-adapter-node": "workspace:^"
   },
   "peerDependenciesMeta": {},
   "author": "Jarle Mathiesen",

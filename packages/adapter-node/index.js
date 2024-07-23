@@ -13,7 +13,7 @@ export default function (opts = {}) {
 	const { out = 'build', precompress = true, envPrefix = '' } = opts;
 
 	return {
-		name: '@matstack/adapter-node',
+		name: '@matstack/kit-adapter-node',
 
 		async adapt(builder) {
 			const tmp = builder.getBuildDirectory('adapter-node');

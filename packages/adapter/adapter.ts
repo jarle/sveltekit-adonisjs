@@ -1,3 +1,3 @@
-import adapter from '@matstack/adapter-node'
+import adapter from '@matstack/kit-adapter-node'
 
 export default adapter
