@@ -1,7 +1,7 @@
 {
   "name": "@matstack/sveltekit-adonisjs",
   "description": "An adapter for using SvelteKit with AdonisJS",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "engines": {
     "node": ">=20.10.0"
   },
@@ -29,21 +29,21 @@
     "./types": "./build/src/types/main.js"
   },
   "scripts": {
-    "build": "npm run compile",
+    "build": "pnpm run compile",
     "clean": "del-cli build",
-    "compile": "npm run clean && tsc",
+    "compile": "pnpm run clean && tsc",
     "copy:templates": "copyfiles \"stubs/**/**/*.stub\" build",
     "copy:readme": "copyfiles -u 2 \"../../*.md\" build",
     "format": "prettier --write .",
     "lint": "eslint . --ext=.ts",
-    "postcompile": "npm run copy:templates && npm run copy:readme && npm run index:commands",
-    "precompile": "npm run lint",
-    "prepublishOnly": "npm run build",
+    "postcompile": "pnpm run copy:templates && npm run copy:readme && npm run index:commands",
+    "precompile": "pnpm run lint",
+    "prepublishOnly": "pnpm run build",
     "quick:test": "node --enable-source-maps --loader=ts-node/esm bin/test.ts",
-    "release": "npm version patch --force && npm publish",
+    "release": "pnpm publish",
     "test": "cross-env NODE_DEBUG=adonisjs:*,matstack:* NODE_ENV=test node --loader ts-node/esm --enable-source-maps bin/test.ts",
     "typecheck": "tsc --noEmit",
-    "version": "npm run build",
+    "version": "pnpm run build",
     "index:commands": "adonis-kit index build/commands"
   },
   "dependencies": {
