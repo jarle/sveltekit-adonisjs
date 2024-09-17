@@ -47,7 +47,7 @@ export default function (opts = {}) {
 				].join('\n\n')
 			);
 
-			const pkg = JSON.parse(readFileSync('../../package.json', 'utf8'));
+			const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
 
 			// we bundle the Vite output so that deployments only need
 			// their production dependencies. Anything in devDependencies
