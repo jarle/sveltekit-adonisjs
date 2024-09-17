@@ -1,6 +1,6 @@
 {
 	"name": "@matstack/kit-adapter-node",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "Adapter for SvelteKit apps that generates a standalone Node server",
 	"keywords": [
 		"adapter",
