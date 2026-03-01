@@ -1,5 +1,7 @@
+import http from 'node:http';
+import process from 'node:process';
 import { handler } from 'HANDLER';
-import { env } from 'ENV';
+import { env, timeout_env } from 'ENV';
 import polka from 'polka';
 
 export const path = env('SOCKET_PATH', false);
@@ -30,7 +32,19 @@ let shutdown_timeout_id;
 /** @type {NodeJS.Timeout | void} */
 let idle_timeout_id;
 
-const server = polka().use(handler);
+const httpServer = http.createServer();
+
+const keep_alive_timeout = timeout_env('KEEP_ALIVE_TIMEOUT');
+if (keep_alive_timeout !== undefined) {
+	httpServer.keepAliveTimeout = keep_alive_timeout * 1000;
+}
+
+const headers_timeout = timeout_env('HEADERS_TIMEOUT');
+if (headers_timeout !== undefined) {
+	httpServer.headersTimeout = headers_timeout * 1000;
+}
+
+const server = polka({ server: httpServer }).use(handler);
 
 if (socket_activation) {
 	server.listen({ fd: SD_LISTEN_FDS_START }, () => {
@@ -38,7 +52,7 @@ if (socket_activation) {
 	});
 } else {
 	server.listen({ path, host, port }, () => {
-		console.log(`Listening on ${path ? path : host + ':' + port}`);
+		console.log(`Listening on ${path || `http://${host}:${port}`}`);
 	});
 }
 
@@ -48,10 +62,9 @@ function graceful_shutdown(reason) {
 
 	// If a connection was opened with a keep-alive header close() will wait for the connection to
 	// time out rather than close it even if it is not handling any requests, so call this first
-	// @ts-expect-error this was added in 18.2.0 but is not reflected in the types
-	server.server.closeIdleConnections();
+	httpServer.closeIdleConnections();
 
-	server.server.close((error) => {
+	httpServer.close((error) => {
 		// occurs if the server is already closed
 		if (error) return;
 
@@ -66,14 +79,10 @@ function graceful_shutdown(reason) {
 		process.emit('sveltekit:shutdown', reason);
 	});
 
-	shutdown_timeout_id = setTimeout(
-		// @ts-expect-error this was added in 18.2.0 but is not reflected in the types
-		() => server.server.closeAllConnections(),
-		shutdown_timeout * 1000
-	);
+	shutdown_timeout_id = setTimeout(() => httpServer.closeAllConnections(), shutdown_timeout * 1000);
 }
 
-server.server.on(
+httpServer.on(
 	'request',
 	/** @param {import('node:http').IncomingMessage} req */
 	(req) => {
@@ -88,8 +97,7 @@ server.server.on(
 
 			if (shutdown_timeout_id) {
 				// close connections as soon as they become idle, so they don't accept new requests
-				// @ts-expect-error this was added in 18.2.0 but is not reflected in the types
-				server.server.closeIdleConnections();
+				httpServer.closeIdleConnections();
 			}
 			if (requests === 0 && socket_activation && idle_timeout) {
 				idle_timeout_id = setTimeout(() => graceful_shutdown('IDLE'), idle_timeout * 1000);

@@ -1,10 +1,20 @@
-import { HttpContext } from '@adonisjs/core/http';
-import commonjs from '@rollup/plugin-commonjs';
-import json from '@rollup/plugin-json';
-import { nodeResolve } from '@rollup/plugin-node-resolve';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { rollup } from 'rollup';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
+import json from '@rollup/plugin-json';
+import { HttpContext } from '@adonisjs/core/http';
+
+/**
+ * @template T
+ * @template {keyof T} K
+ * @typedef {Partial<Omit<T, K>> & Required<Pick<T, K>>} PartialExcept
+ */
+
+/**
+ * @typedef {PartialExcept<import('@sveltejs/kit').Builder, 'log' | 'rimraf' | 'mkdirp' | 'config' | 'prerendered' | 'routes' | 'createEntries' | 'findServerAssets' | 'generateFallback' | 'generateEnvModule' | 'generateManifest' | 'getBuildDirectory' | 'getClientDirectory' | 'getServerDirectory' | 'getAppPath' | 'writeClient' | 'writePrerendered' | 'writeServer' | 'copy' | 'compress'>} Builder2_4_0
+ */
 
 const files = fileURLToPath(new URL('./files', import.meta.url).href);
 
@@ -14,7 +24,7 @@ export default function (opts = {}) {
 
 	return {
 		name: '@matstack/kit-adapter-node',
-
+		/** @param {Builder2_4_0} builder */
 		async adapt(builder) {
 			const tmp = builder.getBuildDirectory('adapter-node');
 
@@ -52,11 +62,18 @@ export default function (opts = {}) {
 			// we bundle the Vite output so that deployments only need
 			// their production dependencies. Anything in devDependencies
 			// will get included in the bundled code
+			/** @type {Record<string, string>} */
+			const input = {
+				index: `${tmp}/index.js`,
+				manifest: `${tmp}/manifest.js`
+			};
+
+			if (builder.hasServerInstrumentationFile?.()) {
+				input['instrumentation.server'] = `${tmp}/instrumentation.server.js`;
+			}
+
 			const bundle = await rollup({
-				input: {
-					index: `${tmp}/index.js`,
-					manifest: `${tmp}/manifest.js`
-				},
+				input,
 				external: [
 					// dependencies could have deep exports, so we need a regex
 					...Object.keys(pkg.dependencies || {}).map((d) => new RegExp(`^${d}(\\/.*)?$`))
@@ -87,26 +104,38 @@ export default function (opts = {}) {
 					MANIFEST: './server/manifest.js',
 					SERVER: './server/index.js',
 					SHIMS: './shims.js',
-					ENV_PREFIX: JSON.stringify(envPrefix)
+					ENV_PREFIX: JSON.stringify(envPrefix),
+					PRECOMPRESS: JSON.stringify(precompress)
 				}
 			});
+
+			if (builder.hasServerInstrumentationFile?.()) {
+				builder.instrument?.({
+					entrypoint: `${out}/index.js`,
+					instrumentation: `${out}/server/instrumentation.server.js`,
+					module: {
+						exports: ['path', 'host', 'port', 'server']
+					}
+				});
+			}
 		},
 
 		async emulate() {
 			return {
 				async platform() {
 					// This requires the setting "useAsyncLocalStorage: true," in config/app.ts
-					const ctx = HttpContext.get()
+					const ctx = HttpContext.get();
 					return {
 						http: ctx,
 						make: ctx?.containerResolver.make.bind(ctx.containerResolver)
-					}
+					};
 				}
-			}
+			};
 		},
 
 		supports: {
-			read: () => true
+			read: () => true,
+			instrumentation: () => true
 		}
 	};
 }

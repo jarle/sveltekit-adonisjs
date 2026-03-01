@@ -4,6 +4,8 @@
 		"checkJs": true,
 		"noEmit": true,
 		"noImplicitAny": true,
+		"strictNullChecks": true,
+		"skipLibCheck": true,
 		"allowSyntheticDefaultImports": true,
 		"target": "es2022",
 		"module": "node16",
@@ -13,5 +15,13 @@
 			"@sveltejs/kit": ["../kit/types/index"]
 		}
 	},
-	"include": ["index.js", "src/**/*.js", "ambient.d.ts"]
+	"include": [
+		"ambient.d.ts",
+		"index.js",
+		"src/**/*.js",
+		"tests/**/*.js",
+		"tests/**/*.ts",
+		"internal.d.ts",
+		"utils.js"
+	]
 }
