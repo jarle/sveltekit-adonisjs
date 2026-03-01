@@ -1,4 +1,5 @@
 /* global ENV_PREFIX */
+import process from 'node:process';
 
 const expected = new Set([
 	'SOCKET_PATH',
@@ -12,7 +13,9 @@ const expected = new Set([
 	'PORT_HEADER',
 	'BODY_SIZE_LIMIT',
 	'SHUTDOWN_TIMEOUT',
-	'IDLE_TIMEOUT'
+	'IDLE_TIMEOUT',
+	'KEEP_ALIVE_TIMEOUT',
+	'HEADERS_TIMEOUT'
 ]);
 
 const expected_unprefixed = new Set(['LISTEN_PID', 'LISTEN_FDS']);
@@ -38,4 +41,42 @@ export function env(name, fallback) {
 	const prefix = expected_unprefixed.has(name) ? '' : ENV_PREFIX;
 	const prefixed = prefix + name;
 	return prefixed in process.env ? process.env[prefixed] : fallback;
+}
+
+const integer_regexp = /^\d+$/;
+
+/**
+ * @param {string} name
+ * @param {any} value
+ * @param {string} description
+ * @returns {never}
+ */
+function parsing_error(name, value, description) {
+	throw new Error(
+		`Invalid value for environment variable ${name}: ${JSON.stringify(value)} (${description})`
+	);
+}
+
+/**
+ * @param {string} name
+ * @param {number} [fallback]
+ * @returns {number | undefined}
+ */
+export function timeout_env(name, fallback) {
+	const raw = env(name, fallback);
+	if (raw === undefined) {
+		return fallback;
+	}
+
+	if (!integer_regexp.test(String(raw))) {
+		parsing_error(name, raw, 'should be a non-negative integer');
+	}
+
+	const parsed = Number.parseInt(String(raw), 10);
+
+	if (Number.isNaN(parsed) || parsed < 0) {
+		parsing_error(name, raw, 'should be a non-negative integer');
+	}
+
+	return parsed;
 }
